@@ -1,35 +1,7 @@
 import { type SubmitEvent, type ChangeEvent, useState } from "react";
 import styled from "styled-components";
 import { useNavigate } from "react-router";
-
-const Wrap = styled.div`
-    min-height: 100vh;
-    // width는 div가 블록요소이기 때문에 기본적으로 부모 전체(100%)가 이미 적용됨
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    background-color: #f5f6fa;
-    padding: 15px;
-`;
-
-const Card = styled.form`
-    width: 100%;
-    max-width: 400px;
-    padding: 40px;
-    border-radius: 16px;
-    background-color: #fff;
-    display: flex;
-    gap: 15px;
-    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
-    flex-direction: column;
-`;
-
-const Title = styled.h1`
-    font-size: 26px;
-    font-weight: 700;
-    margin-bottom: 24px;
-    text-align: center;
-`;
+import { Card, Title, Wrap } from "../components/components.tsx";
 
 const Input = styled.input`
     padding: 14px;
@@ -118,30 +90,44 @@ function Home() {
 
         if (!trimUsername) {
             setUsernameError("아이디는 필수 값입니다.");
+            return;
+        }
+        const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9\s]).{6,}$/;
+        if (!passwordRegex.test(trimPassword)) {
+            setPasswordError(
+                "비밀번호는 영어 대소문자, 숫자. 특수문자를 1글자 이상 포함해야 합니다.",
+            );
         }
         if (trimPassword.length < 6) {
             setPasswordError("비밀번호는 최소 6자리 이상이여야 합니다.");
         }
         if (!trimPassword) {
             setPasswordError("비밀번호는 필수 값입니다.");
+            return;
         }
         if (!trimName) {
             setUsernameError("이름은 필수 값입니다.");
+            return;
         }
         // 이메일 주소 체크
         // string 타입에 includes("글자") 메서드 : "글자"가 string에 포함되어 있는지 여부 체크하여 boolean 반환
-        // 이메일 계정 앞자리에는 특수문자 "." 사용 가능 -> includes만으로 체크가 부족함
-        // string에 사용할 수 잇는 indexOf("글자") -> 해당 글자가 존재하는 자리수를 반환 (없으면 -1)
-        // string에 사용할수 있는 lastIndexOf("글자") => 해당 글자가 여러 개 일때 마지막 존재의 자릿수 반환
+        // 이메일 계정 앞자리엔 특수문자 "." 사용 가능 -> includes만으로는 체크가 부족함
+        // string에 사용할 수 있는 indexOf("글자") -> 해당 글자가 존재하는 자리수를 반환 (없으면 -1)
+        // string에 사용할 수 있는 lastIndexOf("글자") -> 해당 글자가 여러개일 때 마지막 존재의 자리수 반환
         // const atIndex = trimEmail.indexOf("@");
         // const lastDotIndex = trimEmail.lastIndexOf(".");
-        // if (!trimEmail.includes("@") || !trimEmail.includes(".") || atIndex > lastDotIndex) {
+        // if (!trimEmail.includes("@") || !trimEmail.includes(".") || (atIndex > lastDotIndex)) {
         //     setEmailError("이메일 형식이 잘못되었습니다.");
         // }
 
-        // 이메일 형식처럼, 어떠한 규칙성이 있는 형식에 대해 판별을 해줘야 할 때 "정규식"을 사용할 수 있어야 함
+        // 이메일 형식처럼, 어떠한 규칙성이 있는 형식에 대해 판별을 해줘야 할 때 "정규식" 을 사용할 수 있음
+        const emailRegex = /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/;
+        if (!emailRegex.test(trimEmail)) {
+            setEmailError("이메일 형식이 잘못되었습니다.");
+        }
         if (!trimEmail) {
             setEmailError("이메일은 필수 값입니다.");
+            return;
         }
         if (usernameError || passwordError || nameError || emailError) {
             return;
@@ -151,7 +137,6 @@ function Home() {
             `/result?username=${encodeURIComponent(username)}&password=${encodeURIComponent(password)}&name=${encodeURIComponent(name)}&email=${encodeURIComponent(email)}`,
         );
     };
-
     return (
         <Wrap>
             <Card onSubmit={handleSubmit}>
